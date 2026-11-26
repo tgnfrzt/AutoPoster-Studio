@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  autoposter:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: autoposter-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - DEBUG=false
+      - INSTAGRAM_BUSINESS_ID=${INSTAGRAM_BUSINESS_ID:-}
+      - PAGE_ACCESS_TOKEN=${PAGE_ACCESS_TOKEN:-}
+      - REMOTE_HOSTING_URL=${REMOTE_HOSTING_URL:-}
+      - TIKTOK_ACCESS_TOKEN=${TIKTOK_ACCESS_TOKEN:-}
+      - DAY_COOLDOWN_MIN=${DAY_COOLDOWN_MIN:-45}
+      - DAY_COOLDOWN_MAX=${DAY_COOLDOWN_MAX:-70}
+      - EVENING_COOLDOWN_MIN=${EVENING_COOLDOWN_MIN:-20}
+      - EVENING_COOLDOWN_MAX=${EVENING_COOLDOWN_MAX:-45}
+      - CATCHUP_THRESHOLD_MIN=${CATCHUP_THRESHOLD_MIN:-120}
+      - MAX_CATCHUP_POSTS=${MAX_CATCHUP_POSTS:-4}
+    volumes:
+      - ./storage:/app/storage
+      - ./frontend:/app/frontend:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/system/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
